@@ -1,84 +1,3 @@
-const BASE = 'https://d3bb-2409-4072-89a-e089-6991-d0ee-6b50-b253.ngrok.io';
-
-const link = document.createElement('style');
-link.type = 'text/css';
-link.innerHTML = `
-.connect-video-call {
-	position: fixed;
-	bottom: 10px;
-	right: 10px;
-	z-index: 9999;
-}
-
-.__web_annotation_container {
-	position: fixed;
-	bottom: 5px;
-	left: auto;
-	right: calc(50% - 5em);
-	width: 10em;
-	height: min-content;
-	padding: 10px;
-	background-color: green;
-	display: flex;
-	column-gap: 15px;
-}
-
-.__web_annotation_target {
-	border-style: dashed !important;
-	border-color: green;
-}
-
-.__web_annotation_selected {
-	border-style: dashed !important;
-	border-color: red;
-}
-`;
-document.head.appendChild(link);
-
-// const initScript = (v) => {
-// 	script.innerHTML = v;
-// 	script.type = 'text/javascript';
-// 	document.body.append(script);
-// };
-
-// fetch(`${BASE}/connect-video-call.js`, {
-// 	mode: 'no-cors',
-// 	'accept-content-type': 'text/javascript',
-// })
-// 	.then((v) => v.text())
-// 	.then((v) => {
-// 		initScript(v);
-// 	})
-// 	.catch((e) => {
-// 		console.error(e);
-// 	});
-
-// initScript(``);
-
-const scriptsUrl = [
-	// 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.7.0/dist/tf.min.js',
-	// 'https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js',
-	// 'https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js',
-	// `${BASE}/connect-video-call.js`,
-];
-const createScript = (url) => {
-	const script = document.createElement('script');
-	script.src = url;
-	script.type = 'module';
-	document.body.append(script);
-	return script;
-};
-
-const insertScript = (data) => {
-	const script = document.createElement('script');
-	script.innerHTML = data;
-	script.type = 'module';
-	document.body.append(script);
-	return script;
-};
-
-scriptsUrl.forEach(createScript);
-
 class Observable {
 	constructor(value) {
 		this.value = value;
@@ -189,7 +108,6 @@ currentSelected.observe(async (v) => {
 	try {
 		const imageCapture = new ImageCapture(mediaStream.getVideoTracks()[0]);
 		const imageBitmap = await imageCapture.grabFrame();
-		console.log(imageBitmap);
 		// if (holistic) {
 		// 	await holistic.send({ image: imageBitmap });
 		// }
