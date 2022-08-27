@@ -175,27 +175,65 @@ isStart.observe((v) => {
 
 let mediaStream = null;
 
+let images = [];
+let LIMIT = 30;
+let intervalId;
+
+const blobToBase64 = (blob) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(blob);
+  return new Promise((resolve) => {
+    reader.onloadend = () => {
+      resolve(reader.result);
+    };
+  });
+};
+
 currentSelected.observe(async (v) => {
-	if (!v) return;
+  clearInterval(intervalId);
+  if (!v) return;
 
-	const videoTag = document.querySelector(
-		".__web_annotation_selected video:not([style='display: none;'])",
-	);
-	if (!videoTag) return;
+  const videoTag = document.querySelector(
+    ".__web_annotation_selected video:not([style='display: none;'])"
+  );
+  if (!videoTag) return;
 
-	mediaStream = videoTag.srcObject;
-	if (!mediaStream) return;
+  mediaStream = videoTag.srcObject;
+  if (!mediaStream) return;
 
-	try {
-		const imageCapture = new ImageCapture(mediaStream.getVideoTracks()[0]);
-		const imageBitmap = await imageCapture.grabFrame();
-		console.log(imageBitmap);
-		// if (holistic) {
-		// 	await holistic.send({ image: imageBitmap });
-		// }
-	} catch (error) {
-		console.error(error);
-	}
+  try {
+    const imageCapture = new ImageCapture(mediaStream.getVideoTracks()[0]);
+    intervalId = setInterval(async () => {
+      if (images.length >= LIMIT) {
+        images = images.slice(images.length - LIMIT, images.length);
+        const response = await fetch(
+          "https://18f1-34-143-168-148.ap.ngrok.io/predict",
+          {
+            mode: "no-cors",
+            method: "POST",
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: JSON.stringify({
+              images,
+            }),
+          }
+        );
+        const word = await response.text();
+        console.log(word);
+        images = images.slice(images.length - (LIMIT - 10), images.length);
+      } else {
+        const image = await imageCapture.takePhoto();
+        const base64 = await blobToBase64(image);
+        const imageBase64 = base64.split(",", 1)[1];
+        console.log(imageBase64);
+        images.push(imageBase64);
+      }
+    }, 1000 / 30);
+  } catch (error) {
+    clearInterval(intervalId);
+    console.error(error);
+  }
 });
 
 document.body.appendChild(button);
